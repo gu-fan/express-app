@@ -57,13 +57,12 @@ var Post = mongoose.model('post', PostSchema);
 
 // Show users
 app.get('/', function(req,res){
-    // u = new User({name:'hello',password:'pwd'});
-    // u.save();
-    // p = new Post({author:u,content:'hello world'});
-    // p.save();
-    // res.send(p);
-    //
-    Post.find({},function(err, posts){
+    // To find the fk of Post.author
+    // We must user populate, See:
+    // http://mongoosejs.com/docs/populate.html
+    Post.find({})
+    .populate('author')
+    .exec(function(err, posts){
         if (err) console.log(err);
         res.render('index', {
             title: 'Testing App',
