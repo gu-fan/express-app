@@ -1,0 +1,16 @@
+{
+  "name": "testing",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.0",
+    "jade": "^1.5.0",
+    "mongodb": "^1.4.7",
+    "mongoose": "^3.8.14",
+    "morgan": "^1.2.2",
+    "shortid": "^2.0.1"
+  },
+}
