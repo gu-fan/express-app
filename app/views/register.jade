@@ -1,0 +1,16 @@
+extends layout
+
+block content
+
+  form(method='post')
+    br
+    input(type='text',name='username',id="id_username",placeholder='Username')
+    br
+    input(type='password',name='password',class='form-control',id="id_password",placeholder='Password')
+    br
+    input(type='password',name='re_password',class='form-control',id="id_re_password",placeholder='Repeat Password')
+    br
+    input(type='text',name='email',class='form-control',id="id_email",placeholder='Email')
+    br
+    button(type='submit') Submit
+    
