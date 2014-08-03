@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var shortid = require('shortid');
-var userPlugin = require('mongoose-user');
+var userPlugin = require('../../plugins/mongoose-user');
 
 var UserSchema = new mongoose.Schema({
     _id: {
@@ -8,7 +8,7 @@ var UserSchema = new mongoose.Schema({
         unique: true,
         'default': shortid.generate
     },
-    name: {
+    username: {
         type: String,
         unique: true,
         default: ''

@@ -40,7 +40,7 @@ module.exports = function(app){
             return res.redirect('/register');
         }
         var newUser = new User({
-            name: username,
+            username: username,
             password: password,
             email: email,
         });
@@ -68,7 +68,7 @@ module.exports = function(app){
         var username = req.body.username,
         authenticate
         password = req.body.password;
-        User.findOne({name:username},function(err, user){
+        User.findOne({username:username},function(err, user){
             if (err) throw err;
             console.log(user);
             if (!user) {
