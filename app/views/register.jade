@@ -12,5 +12,6 @@ block content
     br
     input(type='text',name='email',class='form-control',id="id_email",placeholder='Email')
     br
+    input(type='hidden',name='_csrf',value='#{csrf_token}')
     button(type='submit') Submit
     

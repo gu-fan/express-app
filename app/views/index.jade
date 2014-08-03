@@ -3,7 +3,7 @@ extends layout
 block content
 
   each post in posts
-      p #{post._id} #{post.author.name} : #{post.content}
+      p #{post._id} #{post.author} : #{post.content}
 
   p #{(page-1)*10} #{ page*10 }
   
