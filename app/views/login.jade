@@ -9,3 +9,7 @@ block content
     br
     input(type='hidden',name='_csrf',value='#{csrf_token}')
     button(type='submit') Submit
+
+  if failureFlash
+    br 
+    h4= failureFlash

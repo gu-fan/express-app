@@ -1,5 +1,6 @@
 var User = require('./app/models/user');
 var Post = require('./app/models/post');
+var passport = require('passport');
 
 module.exports = function(app){
     // Show users
@@ -15,8 +16,11 @@ module.exports = function(app){
         var total =  Post.count({});
 
         res.render('index', {
+            user: req.user,
             title: 'Testing App',
             page: page,
+            info: req.flash('info'),
+            error: req.flash('error'),
             total: Post.count({}),
             posts: Post.find({}).populate('author').skip((page-1)*10).limit(10).sort({_id:-1}),
         });
@@ -30,64 +34,46 @@ module.exports = function(app){
         })
     })
     .post(function(req, res){
-        var username = req.body.username,
-        password = req.body.password,
-        re_password = req.body.re_password,
-        email = req.body.email ? req.body.email : '';
-
-        if (re_password!= password) {
-            req.flash('error', 'Two Password Does Not Match!');
-            return res.redirect('/register');
-        }
-        var newUser = new User({
-            username: username,
-            password: password,
-            email: email,
-        });
-
-        newUser.save(function(err, user) {
+        User.register(new User({ username : req.body.username }), req.body.password, function(err, user) {
             if (err) {
-                // req.flash('error', '用户名已存在！');
-                console.log(err);
-                return res.redirect('/register');
+          return res.render("register", {info: "Sorry. That username already exists. Try again."});
+
             }
-            console.log("Saved");
-            // req.session.user = user;
-            // req.flash('success', '注册成功!');
-            console.log(user);
-            res.redirect('/');
+
+            passport.authenticate('local')(req, res, function () {
+              res.redirect('/');
+            });
         });
-
     });
 
-    app.route('/login')
-    .get(function(req,res){
-        res.render('login',{title:'Login'});
-    })
-    .post(function(req,res){
-        var username = req.body.username,
-        authenticate
-        password = req.body.password;
-        User.findOne({username:username},function(err, user){
-            if (err) throw err;
-            console.log(user);
-            if (!user) {
-                console.log('No Such User');
-                res.redirect('/login');
-            }
-            if (user.authenticate(password)){
-                console.log('yes');
-                res.redirect('/');
-            } else {
-                console.log('no');
-                res.redirect('login');
-            }
-        })
-    });
 
-    app.get('/logout', function(req,res){
-        res.render('login',{
-            title: 'Logout'
-        })
-    });
+  app.get('/login', function(req, res) {
+      res.render('login', { user : req.user });
+  });
+
+  app.post('/login', 
+      // Note: Using passport's failure flash message
+      // We could also use custom callback if needed.
+      passport.authenticate('local', { 
+        failureRedirect: '/login', 
+        failureFlash: true,
+        successFlash: 'Welcome!'}), 
+      function(req, res, next) {
+        res.redirect('/');
+  });
+
+
+  app.get('/logout', function(req, res) {
+      req.logout();
+      res.redirect('/');
+  });
+
+  app.get('/flash', function(req, res){
+    // Set a flash message by passing the key, followed by the value, to req.flash().
+    req.flash('info', 'Flash is back!')
+    res.redirect('/');
+  });
+
+
+
 };

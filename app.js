@@ -5,6 +5,9 @@ var crypto = require('crypto');
 
 var express = require('express');
 
+// object modleing for mongodb 
+var mongoose = require('mongoose');
+
 //  previously express middlewares
 //  https://github.com/senchalabs/connect#middleware
 var morgan = require('morgan');
@@ -18,13 +21,14 @@ var mongoStore = require('connect-mongo')(session);
 var flash = require('connect-flash');
 var helpers = require('view-helpers');
 var csrf = require('csurf');
+var serveStatic = require('serve-static');
 
-// object modleing for mongodb 
-var mongoose = require('mongoose');
-
-var shortid = require('shortid');
-
+// passport
 var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
+// Other Stuff required
+var shortid = require('shortid');
 
 var db_url = 'mongodb://localhost/test';
 var pkg = require('./package.json');
@@ -38,8 +42,17 @@ mongoose.connect(db_url);
 db = mongoose.connection;
 db.on('error', console.error.bind(console, 'db connection error:'))
 
+
+// passport config
+var User = require('./app/models/user');
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 // For console information logging
 app.use(morgan('dev'));
+app.use(serveStatic(path.normalize(__dirname)
+ + '/public'));
 
 app.set('port', process.env.PORT || 4000);
 app.set('views', path.join(__dirname, 'app/views'));
@@ -55,8 +68,11 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(methodOverride('_method'));
 
+
 // express/mongo session storage
 app.use(session({
+  // maxAge: 60000,
+  // cookie: { maxAge: 60000 },
   secret: pkg.name,
   resave: true,
   saveUninitialized: true,
@@ -67,10 +83,15 @@ app.use(session({
   })
 }));
 
+// use passport session
+app.use(passport.initialize());
+app.use(passport.session());
+
 // connect flash for flash messages - should be declared after sessions
 app.use(flash());
 
 // should be declared after session and flash
+// WARNING:This will set the info/error/success of flash to locals
 app.use(helpers(pkg.name));
 
 app.use(csrf());
@@ -78,9 +99,9 @@ app.use(csrf());
 // This could be moved to view-helpers :-)
 app.use(function(req, res, next){
   res.locals.csrf_token = req.csrfToken();
+    // console.log(res.locals);
   next();
 });
-
 
 require('./routes')(app);
 

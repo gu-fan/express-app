@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var shortid = require('shortid');
 var userPlugin = require('../../plugins/mongoose-user');
+var passportLocal = require('passport-local-mongoose');
 
 var UserSchema = new mongoose.Schema({
     _id: {
@@ -10,18 +11,15 @@ var UserSchema = new mongoose.Schema({
     },
     username: {
         type: String,
-        unique: true,
         default: ''
-
     },
-    hashed_password: { type: String, default: '' },
-    salt: { type: String, default: '' },
+    password: String,
     email: { type: String, default: '' },
     create_time:  { type: Date, default: Date() },
 },{
     collection: 'users'
 });
 
-UserSchema.plugin(userPlugin, {});
+UserSchema.plugin(passportLocal);
 
 module.exports = mongoose.model('user', UserSchema);
